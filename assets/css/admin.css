@@ -1,0 +1,47 @@
+hr {
+       display: block;
+       position: relative;
+       padding: 0;
+       margin: 6px auto;
+       height: 0;
+       width: 100%;
+       max-height: 0;
+       font-size: 1px;
+       line-height: 0;
+       clear: both;
+       border: none;
+       border-top: 0.5px solid #aaaaaa;
+       border-bottom: 0.5px solid #ffffff;
+}
+#poppins {
+    font-family: 'Poppins', sans-serif;
+
+}
+.card-group {
+  display: flex;
+
+}
+body {
+            color: white;
+            position: absolute;
+}
+.navbar {
+            background-color: #302f2f;
+            text-align: center;
+}
+.f2f {
+            background-color: #302f2f;
+}
+
+.seize-day {
+            background-color: #000000;
+}
+.dropdown-backdrop {
+    display:none;
+}
+.navbar-brand {
+    text-align: center;
+}
+.text-right {
+        font-size: 20px;
+}

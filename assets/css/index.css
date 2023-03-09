@@ -1,0 +1,12 @@
+.front {
+    background-color: black;
+}
+.navbar-brand {
+    position: relative;
+}
+.about {
+  background-color: #2b2b2b;
+}
+p.difference {
+  word-wrap: break-word;
+}
