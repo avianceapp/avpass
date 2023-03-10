@@ -11,3 +11,10 @@ def dashboard():
     if not current_user.is_authenticated:
       return redirect('/login')
     return render_template('dashboard.html',admin_access='Admin Dashboard' if current_user.admin else 'Dashboard', admin_redirect='/admin' if current_user.admin else '/dashboard', admin_icon='fa fa-user-secret' if current_user.admin else 'fa fa-user')
+  
+@dashboard_blueprint.route('/develop', methods=['GET','POST'])
+def api():
+  if request.method == 'GET':
+    if not current_user.is_authenticated:
+      return redirect('/login')
+    return render_template('develop.html',admin_access='Admin Dashboard' if current_user.admin else 'Dashboard', admin_redirect='/admin' if current_user.admin else '/dashboard', admin_icon='fa fa-user-secret' if current_user.admin else 'fa fa-user')
