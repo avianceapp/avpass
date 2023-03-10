@@ -32,3 +32,21 @@ class UserModel(UserMixin):
         if user is not None:
             return UserModel(user)
         return None
+    
+
+from prisma.models import AuthCode
+
+class AuthCodeModel():
+    @staticmethod
+    def create(client_id, redirect_uri, user_id, code, expires_at, state):
+        auth_code = AuthCode.prisma().create(data={'client_id': str(client_id),
+                                                   'redirect_uri': redirect_uri,
+                                                   'user_id': user_id,
+                                                   'state': state,
+                                                   'code': code,
+                                                   'expires_at': expires_at})
+        return auth_code
+    @staticmethod
+    def get(code):
+        auth_code = AuthCode.find_first(where={'code': code})
+        return auth_code

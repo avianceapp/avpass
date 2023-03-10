@@ -15,7 +15,7 @@ def list_create():
 
   if request.method == 'POST':
     data = request.form
-    dk = hashlib.sha256(data['password'].encode('utf-8')).hexdigest()
+    dk = hashlib.sha3_256(data['password'].encode('utf-8')).hexdigest()
     data = {'email': data['email'], 'password': dk}
     if data is None:
       return render_template('login.html')

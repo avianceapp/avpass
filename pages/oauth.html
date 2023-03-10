@@ -27,7 +27,7 @@
     <div class="vh-100 w-100 d-flex align-items-center" id="mainBgn">
         <div class="formContainer">
           <div class="text-center">
-            <p>Welcome back user!</p>
+            <p>Welcome back {{current_user.username}}!</p>
             <style type="text/css">
               div.auth_card
               {
@@ -41,7 +41,7 @@
               }
               </style>
             <form action="" method="POST">
-              <a href="/" class="navbar-brand mb-0 h1 flex-grow-1" style="font-size: 25px; font-family: 'Poppins', sans-serif; color: white;">EA Sports would like to:</a></div>
+              <a class="navbar-brand mb-0 h1 flex-grow-1" style="font-size: 25px; font-family: 'Poppins', sans-serif; color: white;">EA Sports would like to:</a></div>
               <div class="auth_card">
                 
                 <span><i class="fa-solid fa-check"></i> Access your account details</span> <br><br>
@@ -52,12 +52,18 @@
               <br>
               <div style="margin-right:10px;">
                 <nobr><button class="btn btn-accent2 w-50" style="margin-right:5px;" type="submit">Allow</button>
-                <button class="btn btn-accent w-50" style="margin-left:5px;" type="submit">Deny</button></nobr>
+                <button class="btn btn-accent w-50" onclick="window.open('', '_self', ''); window.close();">Deny</button></nobr>
             <div class="column">
 <br>            <a href="/logout" style="text-decoration: none;">Not you?</a>
         </div>
           </form>
         </div>
       </div>
+      <script>
+        var windows = $('#cancel');
+windows.on('click', function() {
+  $(this).hide();
+});
+      </script>
 </body>
 </html>

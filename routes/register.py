@@ -15,7 +15,7 @@ def list_create():
     name = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    password = hashlib.sha3_256(password.encode('utf-8')).hexdigest()
     if name is None or email is None:
       return {"error": "You need to provide name and email"}
     try:
