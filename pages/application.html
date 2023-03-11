@@ -30,64 +30,29 @@
             top: 0;
             left: 0;
         }
-        #create-application-overlay {
-  position: fixed; /* Sit on top of the page content */
-  display: none; /* Hidden by default */
-  width: 100%; /* Full width (cover the whole page) */
-  height: 100%; /* Full height (cover the whole page) */
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
-  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
-  cursor: pointer; /* Add a pointer on hover */
-}
-#application-overlay-card{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  font-size: 50px;
-  color: white;
-  transform: translate(-50%,-50%);
-  -ms-transform: translate(-50%,-50%);
-}
+       
     </style>
+    <script>
+        function copyFunction() {
+  // Get the text field
+  var copyText = document.getElementById("myInput");
+
+  // Select the text field
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); // For mobile devices
+
+   // Copy the text inside the text field
+  navigator.clipboard.writeText(copyText.value);
+
+  // Alert the copied text
+  alert("Copied the text: " + copyText.value);
+} 
+    </script>
     <meta charset="UTF-8">
     <title>kDashboard</title>
 
-    <script>
-            function on_application_overlay() {
-  document.getElementById("create-application-overlay").style.display = "block";
-}
-
-function off_application_overlay() {
-  document.getElementById("create-application-overlay").style.display = "none";
-} 
-    </script>
 </head>
 <body>
-
-    <div id="create-application-overlay">
-        
-        <div class="card application-overlay-card" style="width: 18rem; position: absolute; top: 50%; left: 50%; color: white; transform: translate(-50%,-50%); -ms-transform: translate(-50%,-50%);">
-            <div class="card-body">
-              <button type="button" class="btn btn-danger" onclick="off_application_overlay()" style="position: absolute; top: 10px; right: 10px;">Exit</button>
-              <p style="font-size: 20px;">Create a new app.</p>
-              <br>
-              <form action="" method="POST">
-                <div>
-                  <input type="text" class="form-control rounded-pill" name="app" placeholder="Application Name" required> <br>
-                  <input type="text" class="form-control rounded-pill" name="description" placeholder="Application Description" required>
-                </div>
-                <br>
-                <button class="btn btn-primary rounded-pill w-100" type="submit">Create App</button>
-              </form>
-    
-            </div>
-          </div>
-<!-- application-overlay-card -->
-    </div>
     <div class="container-fluid">
         <div class="row flex-nowrap">
             <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
@@ -132,33 +97,68 @@ function off_application_overlay() {
 </div>
 
 </nav>
+<br><br>
+<h1 style="font-size: 50px; font-family: 'Poppins', sans-serif; color: white; text-decoration: none;">{{app.name}}'s settings:</h1>
 
+<br><br><br><br><br>
+<h2 style="font-family: 'Poppins', sans-serif; color: white; text-decoration: none;">Client information</h2>
+<br><h5 style="font-family: 'Poppins', sans-serif; color: white; text-decoration: none;">Client ID:</h5>
+<p id="client_id">{{app.client_id}}</p>
 
+<button id="copy-btn" class="btn btn-primary" onclick="copyToClipboard()">Copy</button>
 
-  {% for message in get_flashed_messages() %}
-  <div class="alert alert-{{app_info}}" role="alert">
-    <i class="{{app_info_icon}}"></i> {{message}}
-    </div>
-{% endfor %}    
 <br>
-    <h1 style="font-size: 50px; font-family: 'Poppins', sans-serif; color: white; text-decoration: none;">My applications:</h1>
-    <button type="button" class="btn btn-light" style="float: right;" onclick="on_application_overlay()"><i class="fa-solid fa-plus"></i> Create a new app</button>
-<br><br><br>
-<div class="row">
-    {% for application in applications %}
-    <br>
-    <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title"><strong>{{application.name}}</strong></h5>
-          <p class="card-text">{{application.description}}</p>
-          <a href="/dashboard/develop/app?app_id={{application.id}}" class="btn btn-primary"><i class="fa-solid fa-arrow-up-right-from-square"></i>   Visit Application</a>
+<br>
+<br>
+<h2 style="font-family: 'Poppins', sans-serif; color: white; text-decoration: none;">Redirect URI:</h2> <br>
+
+<div class="card" style="width: 25rem;">
+    <div class="card-body">
+      <form action="" method="POST">
+        <div>
+          <input type="text" class="form-control rounded-pill" name="redirect_uri" placeholder="URI" value="{{app.redirect_uri}}" required>
         </div>
-      </div>
-      <br>
-  {% endfor %}
+        <br>
+        <button class="btn btn-primary rounded-pill w-100" type="submit">Save</button>
+      </form>
+
+    </div>
+  </div>
 </div>
 </div>
 </div>
-</div>
+
+<script>
+    function copyToClipboard() {
+  // Get the paragraph element by its ID
+  const paragraph = document.getElementById("client_id");
+
+  // Select the text inside the paragraph
+  const range = document.createRange();
+  range.selectNode(paragraph);
+  window.getSelection().addRange(range);
+
+  // Copy the selected text to the clipboard
+  document.execCommand("copy");
+
+  // Clear the selection (optional)
+  window.getSelection().removeAllRanges();
+
+  // Change button text and class to "Copied!"
+  const copyBtn = document.getElementById("copy-btn");
+  copyBtn.textContent = "Copied!";
+  copyBtn.classList.remove("btn-primary");
+  copyBtn.classList.add("btn-success");
+
+  // Change button back to "Copy" after 2 seconds
+  setTimeout(function() {
+    copyBtn.textContent = "Copy";
+    copyBtn.classList.remove("btn-success");
+    copyBtn.classList.add("btn-primary");
+  }, 2000);
+}
+
+</script>
+
 </body>
 </html>

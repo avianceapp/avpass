@@ -41,18 +41,21 @@
               }
               </style>
             <form action="" method="POST">
-              <a class="navbar-brand mb-0 h1 flex-grow-1" style="font-size: 25px; font-family: 'Poppins', sans-serif; color: white;">EA Sports would like to:</a></div>
+              <a class="navbar-brand mb-0 h1 flex-grow-1" style="font-size: 20px; font-family: 'Poppins', sans-serif; color: white;">{{oauth_info.name}} would like to:</a></div>
               <div class="auth_card">
                 
                 <span><i class="fa-solid fa-check"></i> Access your account details</span> <br><br>
-                <span><i class="fa-solid fa-check"></i> Link you with your EA Account</span>
-                <br> <br> <span><i class="fa-solid fa-check"></i> Access your bank account.</span>
-                <!-- <br><br> <span><i class="fa-solid fa-x"></i> Fly for you</span> -->
+                <span><i class="fa-solid fa-check"></i> Link you with the service.</span>
+                <br><br> <span><i class="fa-solid fa-x"></i> Fly for you</span>
+              </div><br>
+              <div style="font-size: 12px; text-align: left;">
+                <p style="color:grey;"><i class="fa-solid fa-link"></i> You will be redirected to: <br>{{oauth_info.redirect_uri}}</p>
+                <p style="color:grey;"><i class="fa-solid fa-lock"></i> The developer of {{oauth_info.name}}'s privacy policy and terms of service apply to this application.</p>
               </div>
-              <br>
+                <br>
               <div style="margin-right:10px;">
-                <nobr><button class="btn btn-accent2 w-50" style="margin-right:5px;" type="submit">Allow</button>
-                <button class="btn btn-accent w-50" onclick="window.open('', '_self', ''); window.close();">Deny</button></nobr>
+                <nobr><button class="btn btn-success w-50" style="margin-right:5px;" type="submit">Allow</button>
+                <a class="btn btn-danger w-50" href="/oauth/cancel_request" role="button">Deny</a></nobr>
             <div class="column">
 <br>            <a href="/logout" style="text-decoration: none;">Not you?</a>
         </div>

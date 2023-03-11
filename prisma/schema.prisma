@@ -29,11 +29,17 @@ model User {
   updated_at DateTime? @updatedAt
   is_authenticated  Boolean  @default(true)
   access_token AccessToken[]
+  apiCredits String  @default("1")
 }
 
-model apiKey {
+model application {
   id          String      @id @default(cuid())
+  created_on  DateTime    @default(now())
+  ownerID     String
+  description String      @default("Cool application")
+  redirect_uri  String    @default("http://localhost:3000/callback/avpass")
   client_id   String      @default("client_idhere")
+  name        String      @default("My Cool application")
 }
 
 model AuthCode {

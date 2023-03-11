@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
-from prisma.models import User
+from prisma.models import User, application
 from flask_login import login_user, logout_user, login_required, current_user
 from libraries.db.models import UserModel, get_user
 import hashlib
@@ -17,31 +17,58 @@ def generate_auth_code(client_id, redirect_uri, user_id):
 
 oauth_blueprint = Blueprint('oauth', __name__ , template_folder='../pages/', static_folder='../assets/')
 
+
+@oauth_blueprint.route('/cancel_request')
+def cancel_request():
+    return """<style> body {
+    background-color: black;
+    color: white;
+        }
+        </style>
+        <body>
+        
+            <h1> Request cancelled, please close this tab yourself. </h1>
+        </body>
+        """
+
 @oauth_blueprint.route('/authorize', methods=['GET','POST'])
 def oauth():
     client_id = request.args.get('client_id')
     redirect_uri = request.args['redirect_uri']
     state = request.args['state']
     if request.method == 'GET':
-        if not current_user.is_authenticated:
-            return redirect('/login')
-        return render_template('oauth.html')
+        checker = application.prisma().find_first(where={'client_id': client_id})
+
+        if checker is not None:
+            if checker.redirect_uri == redirect_uri:
+                if not current_user.is_authenticated:
+                    return redirect('/login')
+                return render_template('oauth.html', oauth_info=checker)
+            else:
+                return {'error': 'RedirectURI is invalid.'}
+        else:
+            return {'error': 'Client_ID is invalid.'}
+
     elif request.method == 'POST':
         user = User.prisma().find_first(where={'id': current_user.id})
-        if user.id == current_user.id:
-            
-            auth_code = generate_auth_code(client_id, redirect_uri, user.id)
-            AuthCodeModel.create(
-                code=auth_code,
-                user_id=user.id,
-                client_id=client_id,
-                redirect_uri=redirect_uri,
-                state=state,
-                expires_at = datetime.now() + timedelta(days=4)
-            )
-            return redirect(f'{redirect_uri}?code={auth_code}&state={state}')
+        checker = application.prisma().find_first(where={'client_id': client_id})
+
+        if user.id == current_user.id and checker is not None:
+            if checker.redirect_uri == redirect_uri:
+                auth_code = generate_auth_code(client_id, redirect_uri, user.id)
+                AuthCodeModel.create(
+                    code=auth_code,
+                    user_id=user.id,
+                    client_id=client_id,
+                    redirect_uri=redirect_uri,
+                    state=state,
+                    expires_at = datetime.now() + timedelta(days=4)
+                )
+                return redirect(f'{redirect_uri}?code={auth_code}&state={state}')
+            else:
+                return {'error': 'redirectURI is invalid.'}
         else:
-            pass
+            return {'error': 'ClientID is invalid.'}
 import jwt
 import time
 

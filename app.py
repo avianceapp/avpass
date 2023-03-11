@@ -1,5 +1,5 @@
 # Import essential imports.
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from flask_login import LoginManager
 from prisma import Prisma, register
 from prisma.models import User
@@ -38,6 +38,10 @@ def load_user(_id):
 @app.route('/', methods=['GET'])
 def index():
   return render_template('index.html')
+
+@app.route('/docs', methods=['GET'])
+def documentation():
+  return redirect('https://docs.aviance.app/')
 
 # Return 404 page if 404 error recieved.
 @app.errorhandler(404)
