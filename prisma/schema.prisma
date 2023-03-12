@@ -39,6 +39,7 @@ model application {
   description String      @default("Cool application")
   redirect_uri  String    @default("http://localhost:3000/callback/avpass")
   client_id   String      @default("client_idhere")
+  client_secret String    @default("client_secrethere")
   name        String      @default("My Cool application")
 }
 
@@ -48,7 +49,7 @@ model AuthCode {
   redirect_uri String
   state       String
   user_id     String
-  code        String   @unique
+  code        String
   expires_at  DateTime
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())

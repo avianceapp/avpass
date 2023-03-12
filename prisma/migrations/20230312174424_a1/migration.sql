@@ -34,6 +34,7 @@ CREATE TABLE "application" (
     "description" STRING NOT NULL DEFAULT 'Cool application',
     "redirect_uri" STRING NOT NULL DEFAULT 'http://localhost:3000/callback/avpass',
     "client_id" STRING NOT NULL DEFAULT 'client_idhere',
+    "client_secret" STRING NOT NULL DEFAULT 'client_secrethere',
     "name" STRING NOT NULL DEFAULT 'My Cool application',
 
     CONSTRAINT "application_pkey" PRIMARY KEY ("id")
@@ -59,9 +60,6 @@ CREATE UNIQUE INDEX "AccessToken_token_key" ON "AccessToken"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "AuthCode_code_key" ON "AuthCode"("code");
 
 -- AddForeignKey
 ALTER TABLE "AccessToken" ADD CONSTRAINT "AccessToken_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

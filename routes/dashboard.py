@@ -2,7 +2,7 @@ from flask import Blueprint, request, render_template, redirect, flash
 from prisma.models import application
 from flask_login import login_user, logout_user, current_user
 from libraries.db.models import UserModel, get_user
-import uuid
+import uuid, hashlib
 
 
 dashboard_blueprint = Blueprint('dashboard', __name__ , template_folder='../pages/',static_folder='../assets/')
@@ -56,6 +56,7 @@ def application_dev():
       'ownerID': current_user.id,
       'name': app_name,
       'client_id': str(uuid.uuid4()),
+      'client_secret': str(uuid.uuid4()),
       'description': description
       }
     )
