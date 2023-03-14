@@ -6,10 +6,9 @@ The oauth function first checks that the client ID and redirect URI supplied in 
 The token function takes an authorization code and client credentials as input, and returns an access token if the authorization code is valid and the client credentials are correct. It first checks that the client credentials are valid by hashing the client secret and comparing it to the hash stored in the database. If the client credentials check passes, it decodes the authorization code to get the user ID and client ID, and generates an access token using the generate_token function. The generate_token function creates a JSON Web Token (JWT) containing the user ID, client ID, expiration time, and other information, signs it with a secret key, and returns the token as a string.
 """
 
-from flask import Blueprint, request, render_template, redirect, jsonify, abort
+from flask import Blueprint, request, render_template, redirect, jsonify
 from prisma.models import User, application
-from flask_login import login_user, logout_user, login_required, current_user
-from libraries.db.models import UserModel, get_user
+from flask_login import current_user
 import hashlib
 
 
@@ -68,7 +67,6 @@ def oauth():
                     'user_id': user.id,
                     'client_id': client_id,
                     'redirect_uri': redirect_uri,
-                    'state': state,
                     'expires_at': datetime.now() + timedelta(days=4)
                 }
                 )
@@ -77,7 +75,25 @@ def oauth():
                 return {'error': 'redirectURI is invalid.'}
         else:
             return {'error': 'ClientID is invalid.'}
-        
+
+
+@oauth_blueprint.route('/initiate', methods=['POST'])
+def initiate_oauth():
+    data = request.json()
+    
+    client_id = data['client_id']
+    client_secret = data['client_secret']
+    state = data['state']
+    redirect_uri = data['redirect_uri']
+
+    client_check = application.prisma().find_first(where={'client_id': client_id, 'client_secret': client_secret})
+
+    if client_check is not None:
+        return redirect(f'/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&state={state}')
+    
+    return {'clientError': 404}
+
+
 import jwt
 import time
 
@@ -95,10 +111,9 @@ def token():
         auth_token = ''
     
     if client_id and client_secret and verify_client_secret(client_id, client_secret) and auth_token and verify_token(auth_token):
-        auth_code = request.form['code']
-        state = request.form['state']
+        auth_code = request.json['code']
         auth_code_obj = AuthCode.prisma().find_first(where={'code': auth_code})
-        if auth_code_obj and auth_code_obj.state == state:
+        if auth_code_obj is not None:
             access_token = generate_token(auth_code_obj.user_id, client_id)
             AuthCode.prisma().delete(where={'id': auth_code_obj.id})
             return jsonify({'access_token': access_token})

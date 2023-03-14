@@ -47,7 +47,6 @@ model AuthCode {
   id          String      @id @default(cuid())
   client_id   String
   redirect_uri String
-  state       String
   user_id     String
   code        String
   expires_at  DateTime
