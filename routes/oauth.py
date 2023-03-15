@@ -94,12 +94,6 @@ def initiate_oauth():
     return {'clientError': 404}
 
 
-import jwt
-import time
-
-
-import hashlib
-
 @oauth_blueprint.route('/token', methods=['POST'])
 def token():
     client_id = request.form.get('client_id')

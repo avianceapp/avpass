@@ -60,8 +60,27 @@ def application_dev():
       'description': description
       }
     )
-    return redirect('/dashboard/develop?app_created=true')
-  
+    return redirect(f'/dashboard/develop?app_created=true')
+
+
+@dashboard_blueprint.route('/app/key_management/', methods=['GET','POST'])
+def resetsecretkey():
+  app_id = request.args.get('app_id')
+
+  if request.method == 'GET':
+
+    if not current_user.is_authenticated:
+      return redirect('/login')
+    
+    app = application.prisma().find_first(where={'id': app_id, 'ownerID': current_user.id})
+
+    if app is None:
+      return redirect('/dashboard/develop')
+
+    application.prisma().update(where={'id': app_id}, data={'client_secret': str(uuid.uuid4())})
+    return redirect('/dashboard/develop')
+
+
 @dashboard_blueprint.route('/develop/app', methods=['GET','POST'])
 def appl_id():
   app_id = request.args.get('app_id')
@@ -75,9 +94,14 @@ def appl_id():
 
     if not current_user.is_authenticated:
       return redirect('/login')
-    return render_template('application.html',admin_access='Admin Dashboard' if current_user.admin else 'Dashboard', admin_redirect='/admin' if current_user.admin else '/dashboard', admin_icon='fa fa-user-secret' if current_user.admin else 'fa fa-user', app=app)
+
+    redirect_forreset = '/dashboard/app/key_management?app_id=' + app_id
+
+    return render_template('application.html',admin_access='Admin Dashboard' if current_user.admin else 'Dashboard', admin_redirect='/admin' if current_user.admin else '/dashboard', admin_icon='fa fa-user-secret' if current_user.admin else 'fa fa-user', app=app, redirect_forreset=redirect_forreset)
     # except:
     #   return render_template('errors/404.html')
+
+
   if request.method == 'POST':
     data = request.form
     redirect_uri = data['redirect_uri']
