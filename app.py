@@ -3,6 +3,7 @@ from flask import Flask, render_template, redirect
 from flask_login import LoginManager
 from prisma import Prisma, register
 from prisma.models import User
+import uuid, hashlib
 
 # Import routes
 from routes.register import user_blueprint
@@ -25,7 +26,7 @@ app = Flask(__name__,template_folder='pages/',static_folder='./assets/')
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-app.secret_key = "ABORT"
+app.secret_key = hashlib.sha3_256(str(uuid.uuid4()).encode()).hexdigest()
 @app.login_manager.user_loader
 def load_user(_id):
     if _id is not None:

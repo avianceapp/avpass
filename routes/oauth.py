@@ -9,13 +9,13 @@ The token function takes an authorization code and client credentials as input, 
 from flask import Blueprint, request, render_template, redirect, jsonify
 from prisma.models import User, application
 from flask_login import current_user
-import hashlib
+import hashlib, uuid
 
 
 
 def generate_auth_code(client_id, redirect_uri, user_id):
     # Concatenate the client ID, redirect URI, and user ID into a string
-    code_string = client_id + redirect_uri + user_id
+    code_string = client_id + redirect_uri + user_id + str(uuid.uuid4())
     # Hash the code string with SHA256 to generate the authorization code
     code_hash = hashlib.sha3_256(code_string.encode()).hexdigest()
     return code_hash
@@ -94,35 +94,33 @@ def initiate_oauth():
     return {'clientError': 404}
 
 
-@oauth_blueprint.route('/token', methods=['POST'])
-def token():
-    client_id = request.form.get('client_id')
-    client_secret = request.form.get('client_secret')
-    auth_header = request.headers.get('auth_code')
-    if auth_header:
-        auth_token = auth_header.split(" ")[1]
-    else:
-        auth_token = ''
+@oauth_blueprint.route('/api/user_info', methods=['POST'])
+def user_info_route():
+    request_data = request.get_json()
+    client_id = request_data['client_id']
+    client_secret = request_data['client_secret']
+    auth_code = request_data['auth_code']
     
-    if client_id and client_secret and verify_client_secret(client_id, client_secret) and auth_token and verify_token(auth_token):
-        auth_code = request.json['code']
+    if verify_client_secret(client_id, client_secret) and verify_token(auth_code):
         auth_code_obj = AuthCode.prisma().find_first(where={'code': auth_code})
         if auth_code_obj is not None:
-            access_token = generate_token(auth_code_obj.user_id, client_id)
-            AuthCode.prisma().delete(where={'id': auth_code_obj.id})
-            return jsonify({'access_token': access_token})
+            user_service = User.prisma().find_first(where={'id': auth_code_obj.user_id})
+            if user_service is not None:
+                AuthCode.prisma().delete(where={'id': auth_code_obj.id})
+
+                return {'username': user_service.username, 'email': user_service.email, 'emailVerified': user_service.emailVerified}
+            return {'error': 'Errors with avPass.'}    
         else:
             return jsonify({'error': 'invalid_request'}), 400
     else:
         return jsonify({'error': 'invalid_grant'}), 400
 
 def verify_client_secret(client_id, client_secret):
-    client = application.prisma().find_first(where={'client_id': client_id})
+    client = application.prisma().find_first(where={'client_id': client_id, 'client_secret': client_secret})
     if client is not None:
-        hashed_secret = client_secret
-        return hashed_secret == client.client_secret
-    
-    return False
+        return True
+    else:
+        return False
 
 def generate_token(user_id, client_id, secret_key, algorithm='HS256', expires_in=30):
     # Create the payload for the token
@@ -175,16 +173,11 @@ def generate_refresh_token(user_id, client_id, secret_key, algorithm='HS256', ex
     auth_code = AuthCode.prisma().create(client_id, None, user_id, refresh_token, expires)
     return refresh_token
 
-from datetime import datetime, timedelta
-from prisma.models import AccessToken
+from datetime import datetime, timedelta, timezone
 
 def verify_token(token):
-    access_token_obj = AccessToken.prisma().find_first(where={'access_token': token})
-    if access_token_obj:
-        if access_token_obj.expires < datetime.now():
-            AccessToken.prisma().delete(where={'id': access_token_obj.id})
-            return False
-        else:
-            return True
+    access_token_obj = AuthCode.prisma().find_first(where={'code': token})
+    if access_token_obj is not None:
+        return True
     else:
         return False
