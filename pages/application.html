@@ -108,9 +108,10 @@
 <button id="copy-btn" class="btn btn-primary" onclick="copyToClipboard()">Copy</button>
 <br> <br> <br>
 <br><h5 style="font-family: 'Poppins', sans-serif; color: white; text-decoration: none;">Client Secret:</h5>
-<p id="client_secret">{{app.client_secret}}</p>
+<p id="client_secret">{{client_secret}}</p>
 <!-- redirect_forreset -->
-<button id="copy-btn2" class="btn btn-primary" onclick="copyToClipboard2()">Copy</button>
+<p>{{client_secmessage}}</p>
+<button id="copy-btn2" class="btn btn-primary {{client_seccopy}}" onclick="copyToClipboard2()">Copy</button>
 <a href="{{redirect_forreset}}" class="btn btn-danger">Reset</a>
 
 <br>

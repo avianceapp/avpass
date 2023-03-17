@@ -19,6 +19,8 @@ def application_dev():
   app_created = request.args.get('app_created')
 
   if request.method == 'GET':
+    if not current_user.is_authenticated:
+      return redirect('/login')
     applications = application.prisma().find_many(where={'ownerID': current_user.id})
 
     for app in applications:
@@ -51,16 +53,18 @@ def application_dev():
     data = request.form
     app_name = data['app']
     description = data['description']
-    application.prisma().create(
+    client_sec = str(hashlib.sha3_256(str(uuid.uuid4()).encode('utf-8')).hexdigest())
+    client_id = str(uuid.uuid4())
+    e = application.prisma().create(
       data= {
       'ownerID': current_user.id,
       'name': app_name,
-      'client_id': str(uuid.uuid4()),
-      'client_secret': str(uuid.uuid4()),
+      'client_id': client_id,
+      'client_secret': hashlib.sha3_256(client_sec.encode('utf-8')).hexdigest(),
       'description': description
       }
     )
-    return redirect(f'/dashboard/develop?app_created=true')
+    return redirect(f'/dashboard/develop/app?app_id={e.id}&client_secret={client_sec}')
 
 
 @dashboard_blueprint.route('/app/key_management/', methods=['GET','POST'])
@@ -75,17 +79,26 @@ def resetsecretkey():
     app = application.prisma().find_first(where={'id': app_id, 'ownerID': current_user.id})
 
     if app is None:
-      return redirect('/dashboard/develop')
+      return redirect(f'/dashboard/app?app_id={app_id}')
 
-    application.prisma().update(where={'id': app_id}, data={'client_secret': str(uuid.uuid4())})
-    return redirect('/dashboard/develop')
-
+    client_sec = hashlib.sha3_256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
+    application.prisma().update(where={'id': app_id}, data={'client_secret': hashlib.sha3_256(client_sec.encode('utf-8')).hexdigest()})
+    return redirect(f'/dashboard/develop/app?app_id={app_id}&client_secret={client_sec}')
 
 @dashboard_blueprint.route('/develop/app', methods=['GET','POST'])
 def appl_id():
   app_id = request.args.get('app_id')
-  if request.method == 'GET':
+  client_secret = request.args.get('client_secret')
+  client_seccopy = ''
+  client_secmessage = 'For security reasons, this code will not be shown again. Make sure you copy the key before you lose it!'
+  if client_secret is None:
+    client_secret = '*****************'
+    client_secmessage = 'For security reasons, this code will not be shown. Press the reset key button to reset the key.'
+    client_seccopy = 'disabled'
 
+  if request.method == 'GET':
+    if not current_user.is_authenticated:
+      return redirect('/login')
     # try:
     app = application.prisma().find_first(where={'id': app_id, 'ownerID': current_user.id})
     
@@ -97,7 +110,7 @@ def appl_id():
 
     redirect_forreset = '/dashboard/app/key_management?app_id=' + app_id
 
-    return render_template('application.html',admin_access='Admin Dashboard' if current_user.admin else 'Dashboard', admin_redirect='/admin' if current_user.admin else '/dashboard', admin_icon='fa fa-user-secret' if current_user.admin else 'fa fa-user', app=app, redirect_forreset=redirect_forreset)
+    return render_template('application.html',admin_access='Admin Dashboard' if current_user.admin else 'Dashboard', admin_redirect='/admin' if current_user.admin else '/dashboard', admin_icon='fa fa-user-secret' if current_user.admin else 'fa fa-user', app=app, redirect_forreset=redirect_forreset, client_secret=client_secret, client_seccopy=client_seccopy, client_secmessage=client_secmessage)
     # except:
     #   return render_template('errors/404.html')
 

@@ -86,7 +86,7 @@ def initiate_oauth():
     state = data['state']
     redirect_uri = data['redirect_uri']
 
-    client_check = application.prisma().find_first(where={'client_id': client_id, 'client_secret': client_secret})
+    client_check = application.prisma().find_first(where={'client_id': client_id, 'client_secret': hashlib.sha3_256(client_secret.encode('utf-8')).hexdigest()})
 
     if client_check is not None:
         return redirect(f'/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&state={state}')
@@ -116,7 +116,7 @@ def user_info_route():
         return jsonify({'error': 'invalid_grant'}), 400
 
 def verify_client_secret(client_id, client_secret):
-    client = application.prisma().find_first(where={'client_id': client_id, 'client_secret': client_secret})
+    client = application.prisma().find_first(where={'client_id': client_id, 'client_secret': hashlib.sha3_256(client_secret.encode('utf-8')).hexdigest()})
     if client is not None:
         return True
     else:

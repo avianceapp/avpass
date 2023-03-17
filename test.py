@@ -1,7 +1,7 @@
 import requests
 
 url = 'http://localhost:3000/oauth/api/user_info'
-myobj = {'auth_code': 'b156efa19a579e1be66a551530234513c53011cef2914bc713c123eab86084d6', 'client_id': '64008b39-9a69-4a65-b54d-bff3081cb626', 'client_secret': '86db2661-4202-466d-b43b-0bc31a470f29'}
+myobj = {'auth_code': '4cd791e05cd5b64e4dd9d9791826e378e0633757f870ec9b683ae2b0bd2d737d', 'client_id': 'b897adf3-d8c2-4e9f-9f3e-e049bfe9ab88', 'client_secret': '976f9663b6edddfc675907ae2013f0dad17c5127c61882a5e4c10b116b7c3c94'}
 
 x = requests.post(url, json = myobj)
 
