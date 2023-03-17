@@ -12,6 +12,10 @@ def dashboard():
   if request.method == 'GET':
     if not current_user.is_authenticated:
       return redirect('/login')
+    
+    if not current_user.admin:
+      return render_template('working.html')   
+     
     return render_template('dashboard.html',admin_access='Admin Dashboard' if current_user.admin else 'Dashboard', admin_redirect='/admin' if current_user.admin else '/dashboard', admin_icon='fa fa-user-secret' if current_user.admin else 'fa fa-user')
   
 @dashboard_blueprint.route('/develop', methods=['GET','POST'])
@@ -19,6 +23,9 @@ def application_dev():
   app_created = request.args.get('app_created')
 
   if request.method == 'GET':
+    if not current_user.admin:
+      return render_template('working.html')    
+    
     if not current_user.is_authenticated:
       return redirect('/login')
     applications = application.prisma().find_many(where={'ownerID': current_user.id})
@@ -47,8 +54,12 @@ def application_dev():
 
 
   if request.method == 'POST':
+
     if not current_user.is_authenticated:
       return redirect('/login')
+
+    if not current_user.admin:
+      return render_template('working.html')    
     
     data = request.form
     app_name = data['app']
@@ -73,6 +84,9 @@ def resetsecretkey():
 
   if request.method == 'GET':
 
+    if not current_user.admin:
+      return render_template('working.html')    
+    
     if not current_user.is_authenticated:
       return redirect('/login')
     
@@ -97,6 +111,9 @@ def appl_id():
     client_seccopy = 'disabled'
 
   if request.method == 'GET':
+    if not current_user.admin:
+      return render_template('working.html')    
+    
     if not current_user.is_authenticated:
       return redirect('/login')
     # try:
@@ -116,6 +133,9 @@ def appl_id():
 
 
   if request.method == 'POST':
+    if not current_user.admin:
+      return render_template('working.html')    
+    
     data = request.form
     redirect_uri = data['redirect_uri']
 

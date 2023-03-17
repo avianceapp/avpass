@@ -48,7 +48,8 @@ def oauth():
         if checker is not None:
             if checker.redirect_uri == redirect_uri:
                 if not current_user.is_authenticated:
-                    return redirect('/login')
+                    return redirect(f'/login?redirect=/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&state={state}')
+
                 return render_template('oauth.html', oauth_info=checker)
             else:
                 return {'error': 'RedirectURI is invalid.'}
