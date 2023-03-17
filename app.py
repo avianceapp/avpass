@@ -13,6 +13,7 @@ from routes.dashboard import dashboard_blueprint
 from routes.admin import admin_blueprint
 from routes.errors.notfound import notfound_blueprint
 from routes.oauth import oauth_blueprint
+from routes.reset_password import reset_blueprint
 
 # Connect to the database and register it.
 db = Prisma()
@@ -57,7 +58,7 @@ app.register_blueprint(dashboard_blueprint, url_prefix='/dashboard')
 app.register_blueprint(admin_blueprint, url_prefix='/admin')
 app.register_blueprint(notfound_blueprint, url_prefix='/404')
 app.register_blueprint(oauth_blueprint, url_prefix='/oauth')
-
+app.register_blueprint(reset_blueprint, url_prefix='/reset_password')
 #oauth_blueprint
 
 

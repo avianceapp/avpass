@@ -6,8 +6,11 @@ import hashlib
 import smtplib, random
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from libraries.essentials.getenv import get_env
 
 admin = True
+email = get_env('email_username')
+password = get_env('email_password')
 
 def generate_random_code():
     letters = 'abcdefghijklmnopqrstuvwxyz'
@@ -27,7 +30,7 @@ def send_confirmation_email(you, code, redirect):
       """
       smtp = smtplib.SMTP('mail.smtp2go.com', 2525) 
       smtp.starttls() 
-      smtp.login("username","password")
+      smtp.login(email, password)
       msg = MIMEMultipart('alternative')
       msg['Subject'] = "Account verification needed."
       msg['From'] = 'noreply@aviance.app'
@@ -63,17 +66,17 @@ def send_confirmation_email(you, code, redirect):
       msg.attach(part2)
       smtp.sendmail("noreply@aviance.app", you,msg.as_string()) 
       smtp.quit() 
-      print ("Email sent successfully!") 
+
 
   except Exception as ex: 
-      print("Something went wrong....",ex)
+      pass
 
 
 def send_email(you, username):
   try: 
       smtp = smtplib.SMTP('mail.smtp2go.com', 2525) 
       smtp.starttls() 
-      smtp.login("username","password")
+      smtp.login(email, password)
       msg = MIMEMultipart('alternative')
       msg['Subject'] = "Welcome to aviance! 🥳"
       msg['From'] = 'noreply@aviance.app'
@@ -116,10 +119,9 @@ def send_email(you, username):
       msg.attach(part2)
       smtp.sendmail("noreply@aviance.app", you,msg.as_string()) 
       smtp.quit() 
-      print ("Email sent successfully!") 
 
   except Exception as ex: 
-      print("Something went wrong....",ex)
+    pass
 
 
 user_blueprint = Blueprint('register', __name__ , template_folder='../pages/', static_folder='../assets/')
@@ -143,7 +145,6 @@ def register():
 
   if request.method == 'POST':
     data = request.form
-    print(data)
     if data is None:
       return
 
@@ -160,7 +161,6 @@ def register():
     except:
       # try:
       code = generate_random_code()
-      print(code)
       registrationVerificationService.prisma().create(data={'email': email, 'code': code, 'password': password, 'username': name})
       send_confirmation_email(email, code, redirecttion)
       return render_template('registration_email.html')

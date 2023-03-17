@@ -62,3 +62,10 @@ model registrationVerificationService {
   username  String
   code      String
 }
+
+model resetKey {
+  id        String      @id @default(cuid())
+  token     String
+  email     String
+  expired   Boolean  @default(false)
+}
