@@ -80,7 +80,7 @@ def oauth():
 
 @oauth_blueprint.route('/initiate', methods=['POST'])
 def initiate_oauth():
-    data = request.json()
+    data = request.json
     
     client_id = data['client_id']
     client_secret = data['client_secret']
@@ -90,7 +90,7 @@ def initiate_oauth():
     client_check = application.prisma().find_first(where={'client_id': client_id, 'client_secret': hashlib.sha3_256(client_secret.encode('utf-8')).hexdigest()})
 
     if client_check is not None:
-        return redirect(f'/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&state={state}')
+        return {'uri': f'http://localhost:3000/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&state={state}'}
     
     return {'clientError': 404}
 
