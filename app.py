@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect
 from flask_login import LoginManager
 from prisma import Prisma, register
 from prisma.models import User
-import uuid, hashlib
+import uuid, hashlib, datetime
 
 # Import routes
 from routes.register import user_blueprint
@@ -22,6 +22,8 @@ register(db)
 
 # Define app
 app = Flask(__name__,template_folder='pages/',static_folder='./assets/')
+app.REMEMBER_COOKIE_DURATION = datetime.timedelta(days=30)
+app.config["REMEMBER_COOKIE_DURATION"] = datetime.timedelta(days=30)
 
 # Setup login manager and secret_key.
 login_manager = LoginManager()

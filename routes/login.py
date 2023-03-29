@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect
+from flask import Blueprint, request, render_template, redirect, session
 from prisma.models import User
 from flask_login import login_user, logout_user, login_required, current_user
 from libraries.db.models import UserModel, get_user
@@ -38,5 +38,6 @@ def login():
       print('error')
       return render_template('login.html', redirect_register=redirect_register)
     login_user(UserModel(user))
+    session.permanent = True
 
     return redirect(redirecttion)

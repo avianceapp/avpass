@@ -78,6 +78,7 @@ def oauth():
             return {'error': 'ClientID is invalid.'}
 
 
+
 @oauth_blueprint.route('/initiate', methods=['POST'])
 def initiate_oauth():
     data = request.json
@@ -94,7 +95,19 @@ def initiate_oauth():
     
     return {'clientError': 404}
 
+@oauth_blueprint.route('/delete', methods=['POST', 'DELETE'])
+def delete_oauth_creds():   
+    try:
+        request_data = request.get_json()
+        token = request_data['auth_code']
+        AuthCode.prisma().delete_many(where={'code': token})
 
+        return {'status': 200}
+
+    except:
+        return {'error': 'Something went wrong. Maybe check the payload to see if auth_code is defined?'}
+    
+    
 @oauth_blueprint.route('/api/user_info', methods=['POST'])
 def user_info_route():
     request_data = request.get_json()
@@ -107,9 +120,9 @@ def user_info_route():
         if auth_code_obj is not None:
             user_service = User.prisma().find_first(where={'id': auth_code_obj.user_id})
             if user_service is not None:
-                AuthCode.prisma().delete(where={'id': auth_code_obj.id})
+                # AuthCode.prisma().delete(where={'id': auth_code_obj.id})
 
-                return {'username': user_service.username, 'email': user_service.email, 'emailVerified': user_service.emailVerified}
+                return {'username': user_service.username, 'email': user_service.email, 'email_verified': user_service.emailVerified}
             return {'error': 'Errors with avPass.'}    
         else:
             return jsonify({'error': 'invalid_request'}), 400
@@ -141,6 +154,8 @@ from datetime import datetime, timedelta
 from jwt import encode
 from prisma.models import AuthCode
 from libraries.db.models import UserModel, get_user
+
+
 
 def generate_token(user_id, client_id, secret_key, algorithm='HS256', expires_in=30):
     # Create the payload for the token
@@ -179,6 +194,9 @@ from datetime import datetime, timedelta, timezone
 def verify_token(token):
     access_token_obj = AuthCode.prisma().find_first(where={'code': token})
     if access_token_obj is not None:
-        return True
+        if access_token_obj.expires_at >= datetime.now(timezone.utc):
+            return True
+        else:
+            AuthCode.prisma().delete_many(where={'code': token})
     else:
         return False
